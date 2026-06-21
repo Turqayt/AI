@@ -36,6 +36,19 @@ class InventoryManager:
         for item in items:
             print(item)
 
+    def update_quantity(self, product_id, new_quantity):
+        self.cursor.execute('''
+            UPDATE products 
+            SET quantity = ?
+            WHERE id = ?;
+        ''', (new_quantity, product_id))
+        self.conn.commit()
+
+    def delete_product(self, product_id):
+        self.cursor.execute('''
+            DELETE FROM products WHERE id = ?;
+        ''', (product_id,))
+
 
 def main_menu():
     # Instantiate our OOP class
@@ -46,15 +59,20 @@ def main_menu():
         print("1. Add a Product")
         print("2. View Inventory")
         print("3. Exit")
+        print("4. Update Quantity")
+        print("5. Delete Product")
 
-        choice = input("Enter your choice (1-3): ")
+        choice = input("Enter your choice (1-5): ")
 
         if choice == '1':
             name = input("Enter product name: ")
-            quantity = int(input("Enter quantity: "))
-            price = float(input("Enter price: "))
-            manager.add_product(name, quantity, price)
-            print(f"{name} added successfully!")
+            try:
+                quantity = int(input("Enter quantity: "))
+                price = float(input("Enter price: "))
+                manager.add_product(name, quantity, price)
+                print(f"{name} added successfully!")
+            except ValueError:
+                print("Error: Quantity must be a whole number, and price must be a number.")
 
         elif choice == '2':
             manager.view_inventory()
@@ -62,6 +80,15 @@ def main_menu():
         elif choice == '3':
             print("Goodbye!")
             break
+
+        elif choice == '4':
+            product_id = int(input("Enter product ID: "))
+            quantity = int(input("Enter quantity: "))
+            manager.update_quantity(product_id, quantity)
+
+        elif choice == '5':
+            product_id = int(input("Enter product ID: "))
+            manager.delete_product(product_id)
 
         else:
             print("Invalid choice, please try again.")
